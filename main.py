@@ -58,6 +58,17 @@ def mostrar_resumo():
         print(f"{'Valor total (R$)':<28}{total:>15.2f}")
         print(f"{'Média por despesa (R$)':<28}{media:>15.2f}\n")
 
+        totais = {}
+        for d in despesas:
+            categoria = d["Categoria"]
+            totais[categoria] = totais.get(categoria, 0) + d["Valor"]
+
+        print(f"{'Categoria':<28}{'Total (R$)':>15}")
+        print("-" * 43)
+        for categoria, valor in totais.items():
+            print(f"{categoria:<28}{valor:>15.2f}")
+        print()
+        
 def ler_descricao(mensagem):
     texto = ""
     while texto == "":
