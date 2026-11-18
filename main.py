@@ -28,7 +28,7 @@ def listar_despesas():
     print("\n=== Lista de despesas ===\n")
 
     if len(despesas) == 0:
-        print("Nenhuma despesa foi cadastrada ainda\n")
+        print("Nenhuma despesa foi cadastrada ainda.\n")
     else:
         despesas_ordenadas = sorted(despesas, key = lambda despesa: (despesa["Data"], despesa["Valor"]))
 
@@ -38,6 +38,25 @@ def listar_despesas():
         for contagem, d in enumerate(despesas_ordenadas, start = 1):
             print(f"{contagem:<4}{d['Descrição'][:24]:<25}{d['Valor']:>12.2f}  {d['Categoria'][:17]:<18}{d['Data'].strftime('%d/%m/%Y'):<10}")
         print()
+
+def mostrar_resumo():
+    print("\n=== Resumo ===\n")
+
+    if len(despesas) == 0:
+        print("Não há despesas registradas.\n")
+    else:
+        total = 0
+        for d in despesas:
+            total += d["Valor"]
+
+        quantidade = len(despesas)
+        media = total / quantidade
+
+        print(f"{'Informação':<28}{'Valor':>15}")
+        print("-" * 43)
+        print(f"{'Quantidade de despesas':<28}{quantidade:>15}")
+        print(f"{'Valor total (R$)':<28}{total:>15.2f}")
+        print(f"{'Média por despesa (R$)':<28}{media:>15.2f}\n")
 
 def ler_descricao(mensagem):
     texto = ""
@@ -112,23 +131,26 @@ def ler_data(mensagem):
 
 opcao = ""
 
-while opcao != "3":
+while opcao != "4":
     print("=== Controle Financeiro ===\n")
     print("1) Cadastrar despesa")
     print("2) Listar despesas")
-    print("3) Sair")
+    print("3) Resumo")
+    print("4) Sair")
 
     try:
         opcao = input("\nEscolha: ").strip()
     except (EOFError, KeyboardInterrupt):
         print("\nEntrada Cancelada.\n")
-        opcao = "3"
+        opcao = "4"
 
     if opcao == "1":
         cadastrar_despesa()
     elif opcao == "2":
         listar_despesas()
-    elif opcao != "3":
+    elif opcao == "3":
+        mostrar_resumo()
+    elif opcao != "4":
         print("Opção inválida.\n")
 
 print("\nSaindo...")
