@@ -24,20 +24,24 @@ def cadastrar_despesa():
 
     print("\nDespesa cadastrada!\n")
 
+def obter_despesas_ordenadas():
+    return sorted(despesas, key = lambda despesa: (despesa["Data"], despesa["Valor"]))
+
+def imprimir_tabela(lista):
+    print(f"{'Nº':<4}{'Descrição':<25}{'Valor (R$)':>12}  {'Categoria':<18}{'Data':<10}")
+    print("-" * 71)
+    
+    for contagem, d in enumerate(lista, start = 1):
+        print(f"{contagem:<4}{d['Descrição'][:24]:<25}{d['Valor']:>12.2f}  {d['Categoria'][:17]:<18}{d['Data'].strftime('%d/%m/%Y'):<10}")
+    print()
+
 def listar_despesas():
     print("\n=== Lista de despesas ===\n")
 
     if len(despesas) == 0:
         print("Nenhuma despesa foi cadastrada ainda.\n")
     else:
-        despesas_ordenadas = sorted(despesas, key = lambda despesa: (despesa["Data"], despesa["Valor"]))
-
-        print(f"{'Nº':<4}{'Descrição':<25}{'Valor (R$)':>12}  {'Categoria':<18}{'Data':<10}")
-        print("-" * 71)
-
-        for contagem, d in enumerate(despesas_ordenadas, start = 1):
-            print(f"{contagem:<4}{d['Descrição'][:24]:<25}{d['Valor']:>12.2f}  {d['Categoria'][:17]:<18}{d['Data'].strftime('%d/%m/%Y'):<10}")
-        print()
+        imprimir_tabela(obter_despesas_ordenadas())
 
 def mostrar_resumo():
     print("\n=== Resumo ===\n")
@@ -68,7 +72,27 @@ def mostrar_resumo():
         for categoria, valor in totais.items():
             print(f"{categoria:<28}{valor:>15.2f}")
         print()
-        
+
+def excluir_despesa():
+        print("\n=== Excluir despesa ===\n")
+        if len(despesas) == 0:
+            print("Não há despesas para excluir.\n")
+        else:
+            despesas_ordenadas = obter_despesas_ordenadas()
+            imprimir_tabela(despesas_ordenadas)
+            numero = ler_inteiro("Número da despesa a ser excluída: ", 1, len(despesas_ordenadas))
+            if numero is None:
+                return
+                
+            confirmar = ler_confirmação("\nTem certeza que deseja excluir? (s/n): ")
+            if not confirmar:
+                print("\nExclusão cancelada.\n")
+                return
+            
+            despesa = despesas_ordenadas[numero - 1]
+            despesas.remove(despesa)
+            print("\nDespesa excluída!\n")
+
 def ler_descricao(mensagem):
     texto = ""
     while texto == "":
@@ -140,20 +164,54 @@ def ler_data(mensagem):
             data = None
     return data
 
+def ler_inteiro(mensagem, minimo, maximo):
+    numero = None
+    while numero is None:
+        try:
+            texto = input(mensagem).strip()
+            numero = int(texto)
+        except ValueError:
+            print("Valor Inválido. Digite só números inteiros\n")
+        except (EOFError, KeyboardInterrupt):
+            print ("\nEntrada cancelada.\n")
+            return None
+    
+        if numero is not None:
+            if numero <= 0:
+                    print("O valor precisa ser maior que zero.\n")
+                    numero = None
+            elif numero < minimo or numero > maximo:
+                    print(f"O número precisa estar entre {minimo} e {maximo}.\n")
+                    numero = None
+    return numero
+
+def ler_confirmação(mensagem):
+    resposta = ""
+    while resposta not in ("s", "n"):
+        try:
+            resposta = input(mensagem).strip().lower()
+        except (EOFError, KeyboardInterrupt):
+            print("\nEntrada cancelada.")
+            return None
+        if resposta not in ("s", "n"):
+            print("Responda com 's' para sim ou 'n' para não.")
+    return resposta == "s"
+
 opcao = ""
 
-while opcao != "4":
+while opcao != "5":
     print("=== Controle Financeiro ===\n")
     print("1) Cadastrar despesa")
     print("2) Listar despesas")
     print("3) Resumo")
-    print("4) Sair")
+    print("4) Excluir despesa")
+    print("5) Sair")
 
     try:
         opcao = input("\nEscolha: ").strip()
     except (EOFError, KeyboardInterrupt):
         print("\nEntrada Cancelada.\n")
-        opcao = "4"
+        opcao = "5"
 
     if opcao == "1":
         cadastrar_despesa()
@@ -161,7 +219,9 @@ while opcao != "4":
         listar_despesas()
     elif opcao == "3":
         mostrar_resumo()
-    elif opcao != "4":
+    elif opcao == "4":
+        excluir_despesa()
+    elif opcao != "5":
         print("Opção inválida.\n")
 
 print("\nSaindo...")
