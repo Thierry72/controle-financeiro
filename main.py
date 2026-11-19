@@ -9,12 +9,15 @@ def cadastrar_despesa():
     descricao = ler_descricao("Insira a descrição da despesa: ")
     if descricao is None:
         return
+    
     valor = ler_valor("Insira o valor da despesa: ")
     if valor is None:
         return
+    
     categoria = ler_categoria("Insira a categoria da despesa: ")
     if categoria is None:
         return
+    
     data = ler_data("Insira a data da despesa: ")
     if data is None:
         return
@@ -69,29 +72,66 @@ def mostrar_resumo():
 
         print(f"{'Categoria':<28}{'Total (R$)':>15}")
         print("-" * 43)
+
         for categoria, valor in totais.items():
             print(f"{categoria:<28}{valor:>15.2f}")
         print()
 
+def filtrar_por_mes():
+    print("\n=== Despesas por mês ===\n")
+
+    if len(despesas) == 0:
+        print("Não há despesas registradas.\n")
+        return
+
+    mes = ler_inteiro("Mês (1 a 12): ", 1, 12)
+    if mes is None:
+        return
+
+    ano = ler_inteiro("Ano: ", 2000, date.today().year)
+    if ano is None:
+        return
+    print()
+
+    filtradas = []
+    for d in obter_despesas_ordenadas():
+        if d["Data"].month == mes and d["Data"].year == ano:
+            filtradas.append(d)
+
+    if len(filtradas) == 0:
+        print(f"Nenhuma despesa em {mes:02d}/{ano}.\n")
+        return
+
+    imprimir_tabela(filtradas)
+    total = 0
+    for d in filtradas:
+        total += d["Valor"]
+
+    print("-" * 71)
+    print(f"{'Total do mês (R$)':<29}{total:>12.2f}")
+    print()
+
 def excluir_despesa():
-        print("\n=== Excluir despesa ===\n")
-        if len(despesas) == 0:
-            print("Não há despesas para excluir.\n")
-        else:
-            despesas_ordenadas = obter_despesas_ordenadas()
-            imprimir_tabela(despesas_ordenadas)
-            numero = ler_inteiro("Número da despesa a ser excluída: ", 1, len(despesas_ordenadas))
-            if numero is None:
-                return
-                
-            confirmar = ler_confirmação("\nTem certeza que deseja excluir? (s/n): ")
-            if not confirmar:
-                print("\nExclusão cancelada.\n")
-                return
+    print("\n=== Excluir despesa ===\n")
+
+    if len(despesas) == 0:
+        print("Não há despesas para excluir.\n")
+    else:
+        despesas_ordenadas = obter_despesas_ordenadas()
+        imprimir_tabela(despesas_ordenadas)
+
+        numero = ler_inteiro("Número da despesa a ser excluída: ", 1, len(despesas_ordenadas))
+        if numero is None:
+            return
             
-            despesa = despesas_ordenadas[numero - 1]
-            despesas.remove(despesa)
-            print("\nDespesa excluída!\n")
+        confirmar = ler_confirmação("\nTem certeza que deseja excluir? (s/n): ")
+        if not confirmar:
+            print("\nExclusão cancelada.\n")
+            return
+            
+        despesa = despesas_ordenadas[numero - 1]
+        despesas.remove(despesa)
+        print("\nDespesa excluída!\n")
 
 def ler_descricao(mensagem):
     texto = ""
@@ -101,6 +141,7 @@ def ler_descricao(mensagem):
         except (EOFError, KeyboardInterrupt):
             print("\nEntrada Cancelada.\n")
             return None
+        
         if texto == "":
             print("O campo não pode ficar vazio.\n")
         elif not any(letra.isalpha() for letra in texto):
@@ -116,6 +157,7 @@ def ler_categoria(mensagem):
         except (EOFError, KeyboardInterrupt):
             print("\nEntrada Cancelada.\n")
             return None
+        
         if texto == "":
             print("O campo não pode ficar vazio.\n")
         elif any(letra.isdigit() for letra in texto):
@@ -171,7 +213,7 @@ def ler_inteiro(mensagem, minimo, maximo):
             texto = input(mensagem).strip()
             numero = int(texto)
         except ValueError:
-            print("Valor Inválido. Digite só números inteiros\n")
+            print("Valor Inválido. Digite só números inteiros.\n")
         except (EOFError, KeyboardInterrupt):
             print ("\nEntrada cancelada.\n")
             return None
@@ -193,25 +235,27 @@ def ler_confirmação(mensagem):
         except (EOFError, KeyboardInterrupt):
             print("\nEntrada cancelada.")
             return None
+        
         if resposta not in ("s", "n"):
             print("Responda com 's' para sim ou 'n' para não.")
     return resposta == "s"
 
 opcao = ""
 
-while opcao != "5":
+while opcao != "6":
     print("=== Controle Financeiro ===\n")
     print("1) Cadastrar despesa")
     print("2) Listar despesas")
     print("3) Resumo")
-    print("4) Excluir despesa")
-    print("5) Sair")
+    print("4) Filtrar por mês")
+    print("5) Excluir despesa")
+    print("6) Sair")
 
     try:
         opcao = input("\nEscolha: ").strip()
     except (EOFError, KeyboardInterrupt):
         print("\nEntrada Cancelada.\n")
-        opcao = "5"
+        opcao = "6"
 
     if opcao == "1":
         cadastrar_despesa()
@@ -220,8 +264,10 @@ while opcao != "5":
     elif opcao == "3":
         mostrar_resumo()
     elif opcao == "4":
+        filtrar_por_mes()
+    elif opcao == "5":
         excluir_despesa()
-    elif opcao != "5":
+    elif opcao != "6":
         print("Opção inválida.\n")
 
 print("\nSaindo...")
