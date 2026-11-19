@@ -2,6 +2,8 @@ import math
 from datetime import datetime, date
 
 transacoes = []
+CATEGORIAS_DESPESA = ["Alimentação", "Transporte", "Moradia", "Saúde", "Educação", "Lazer", "Contas", "Vestuário", "Outros"]
+CATEGORIAS_RECEITA = ["Salário", "Freelance", "Investimentos", "Presentes", "Outros"]
 
 def cadastrar_transacao():
     print("\n=== Cadastro de Transação ===\n")
@@ -18,7 +20,7 @@ def cadastrar_transacao():
     if valor is None:
         return
     
-    categoria = ler_categoria("Insira a categoria da transação: ")
+    categoria = ler_categoria("Insira a categoria da transação: ", tipo)
     if categoria is None:
         return
     
@@ -178,21 +180,22 @@ def ler_descricao(mensagem):
             texto = ""
     return texto
 
-def ler_categoria(mensagem):
-    texto = ""
-    while texto == "":
-        try:
-            texto = input(mensagem).strip().capitalize()
-        except (EOFError, KeyboardInterrupt):
-            print("\nEntrada Cancelada.\n")
-            return None
-        
-        if texto == "":
-            print("O campo não pode ficar vazio.\n")
-        elif any(letra.isdigit() for letra in texto):
-            print("A categoria não pode ter números.\n")
-            texto = ""
-    return texto
+def ler_categoria(mensagem, tipo):
+    if tipo == "Receita":
+        categorias = CATEGORIAS_RECEITA
+    else:
+        categorias = CATEGORIAS_DESPESA
+
+    print(mensagem)
+    print()
+    for contagem, c in enumerate(categorias, start = 1):
+        print(f"{contagem}) {c}")
+    print()
+    numero = ler_inteiro("Categoria: ", 1, len(categorias))
+    if numero is None:
+        return None
+
+    return categorias[numero - 1]
 
 def ler_valor(mensagem):
     numero = None
